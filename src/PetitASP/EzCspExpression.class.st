@@ -9,7 +9,7 @@ Class {
 
 { #category : #'instance creation' }
 EzCspExpression class >> functor: f args: args [
-	^ (Smalltalk globals at: ('X',f) asSymbol) basicNew arguments: args; yourself
+	^ (Smalltalk globals at: ('EZ_',f) asSymbol) basicNew arguments: args; yourself
 ]
 
 { #category : #accessing }

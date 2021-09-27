@@ -15,6 +15,26 @@ FirstASPTest >> test2of4 [
 ]
 
 { #category : #tests }
+FirstASPTest >> testDisjunction [
+	"There is a subtle difference between (Program 4.14 in LPARSE Manual p.35)
+	
+		a | b :- c.
+		c :- not d.  d :- not c.
+	
+	and
+	
+		1 { a; b } :- c.
+		c :- not d.  d :- not c.
+	
+	The former will produce 3 stable models, because {a,b,c} is not minimal.
+	The latter will produce 4 stable models including {a,b,c}.
+	"
+	| answers |
+	answers := EzSMT solveProgram: '1 { a; b } :- c. c :- not d. d :- not c.'.
+	self assert: answers size equals: 4	
+]
+
+{ #category : #tests }
 FirstASPTest >> testEX1 [
 	| answers e acd |
 	answers := EzSMT solveProgram: 'cspdomain(fd). cspvar(x).

@@ -20,7 +20,7 @@ GringoSyntaxError class >> signal: aString [
 		line: fields second;
 		column: fields third;
 		severity: fields fourth;
-		errorMessage: fields fifth.
+		messageText: fields fifth.
 	ex signal
 ]
 
@@ -35,13 +35,9 @@ GringoSyntaxError >> column: anObject [
 ]
 
 { #category : #accessing }
-GringoSyntaxError >> errorMessage [
-	^ errorMessage
-]
-
-{ #category : #accessing }
-GringoSyntaxError >> errorMessage: anObject [
-	errorMessage := anObject
+GringoSyntaxError >> columnStart [
+	column isInteger ifTrue: [ ^column ].
+	^($- split: column) first asInteger
 ]
 
 { #category : #accessing }

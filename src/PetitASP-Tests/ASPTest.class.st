@@ -1,11 +1,11 @@
 Class {
-	#name : #FirstASPTest,
+	#name : #ASPTest,
 	#superclass : #TestCaseWithZ3Context,
 	#category : #'PetitASP-Tests'
 }
 
 { #category : #tests }
-FirstASPTest >> test2of4 [
+ASPTest >> test2of4 [
 	| answers |
 	answers := EzSMT solveProgram: '2 { f(1..4) } 2.'.
 	self assert: answers size equals: 6.
@@ -15,7 +15,7 @@ FirstASPTest >> test2of4 [
 ]
 
 { #category : #tests }
-FirstASPTest >> testDisjunction [
+ASPTest >> testDisjunction [
 	"There is a subtle difference between (Program 4.14 in LPARSE Manual p.35)
 	
 		a | b :- c.
@@ -35,29 +35,7 @@ FirstASPTest >> testDisjunction [
 ]
 
 { #category : #tests }
-FirstASPTest >> testEX1 [
-	| answers e acd |
-	answers := EzSMT solveProgram: 'cspdomain(fd). cspvar(x).
-		a :- c, not b.
-		b :- d, not a.
-		c :- d, not b.
-		c :- d, not a.
-		d :- c, not a.
-		d :- not e, not b.
-		e :- a, b.
-		e :- not a, not b.
-		required(ezcsp__geq(x, 10)) :- e.
-		required(ezcsp__leq(x, 9)) :- not e.'.
-	self assert: answers size equals: 2.
-	e := answers detect: [ :ans | ans trueAtoms size = 1 ].
-	self assert: e trueAtoms equals: #('e').
-	self assert: (e constraintAssignments at: 'x') >= 10.
-	acd := answers detect: [ :ans | ans ~= e ].
-	self assert: (acd constraintAssignments at: 'x') <= 9.
-]
-
-{ #category : #tests }
-FirstASPTest >> testFoundedChain [
+ASPTest >> testFoundedChain [
 	| answers |
 	answers := EzSMT solveProgram: 'a :- b. b :- c. c.'.
 	self assert: answers size equals: 1.
@@ -66,7 +44,7 @@ FirstASPTest >> testFoundedChain [
 ]
 
 { #category : #tests }
-FirstASPTest >> testNonTight [
+ASPTest >> testNonTight [
 	| answers |
 	answers := EzSMT solveProgram: '
 		a :- c, not b.
@@ -83,25 +61,56 @@ FirstASPTest >> testNonTight [
 ]
 
 { #category : #tests }
-FirstASPTest >> testRequired1 [
-	| answers |
-	answers := EzSMT solveProgram: 'cspdomain(fd). cspvar(x).
-		required(ezcsp__geq(x, 10)).'.
-	self assert: answers size equals: 1.
-	self assert: (answers first constraintAssignments at: 'x') >= 10
-
-]
-
-{ #category : #tests }
-FirstASPTest >> testSyntaxError [
+ASPTest >> testSyntaxError [
 	self should: [EzSMT solveProgram: '(].'] raise: GringoSyntaxError 
 ]
 
 { #category : #tests }
-FirstASPTest >> testUnfoundedChain [
+ASPTest >> testTowerOfHanoi [
+	| answers solution moves moves3 firstMove |
+	answers := EzSMT solveProgram: self towerOfHanoi.
+	self assert: answers size equals: 1.
+	solution := answers first.
+	moves := solution trueAtoms select: [ :atm | atm beginsWith: 'move(' ].
+	self assert: moves size equals: 30. "15*move/2 and 15*move/3"
+	moves3 := moves select: [ :m | ($, split: m) size = 3 ].
+	self assert: moves3 size equals: 15.
+	firstMove := moves3 select: [ :m | ($, split: m) last = '1)' ].
+	self assert: firstMove size equals: 1.
+	firstMove := firstMove first.
+	self assert: firstMove equals: 'move(4,b,1)'.
+]
+
+{ #category : #tests }
+ASPTest >> testUnfoundedChain [
 	| answers |
 	answers := EzSMT solveProgram: 'a :- b. b :- c.'.
 	self assert: answers size equals: 1.
 	self assert: answers first trueAtoms isEmpty 
 	
+]
+
+{ #category : #tests }
+ASPTest >> towerOfHanoi [
+	^'
+disk(1..4).
+peg(a;b;c).
+init_on(1..4,a).
+goal_on(1..4,c).
+moves(15).
+
+1 { move(D,P,T) : disk(D), peg(P) } 1 :- T = 1..M, moves(M).
+
+move(D,T) :- move(D,_,T).
+on(D,P,0) :- init_on(D,P).
+on(D,P,T) :- move(D,P,T).
+on(D,P,T+1) :- on(D,P,T), not move(D,T+1), not moves(T).
+blocked(D-1,P,T+1) :- on(D,P,T), not moves(T).
+blocked(D-1,P,T) :- blocked(D,P,T), disk(D).
+
+:- move(D,P,T), blocked(D-1,P,T).
+:- move(D,T), on(D,P,T-1), blocked(D,P,T).
+:- not 1 { on(D,P,T) : peg(P) } 1, disk(D), T=1..M, moves(M).
+
+:- goal_on(D,P), not on(D,P,M), moves(M).'
 ]

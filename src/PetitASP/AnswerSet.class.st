@@ -3,6 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'trueAtoms',
+		'falseAtoms',
 		'constraintAssignments'
 	],
 	#category : #PetitASP
@@ -10,12 +11,16 @@ Class {
 
 { #category : #'instance creation' }
 AnswerSet class >> from: aModel [
-	| trueAtoms ints |
-	trueAtoms := aModel constantsASTs select: [ :anAST | anAST == Bool true ].
-	trueAtoms := trueAtoms keys select: [ :anAtom | self isGoodVarName: anAtom ].	
-	ints := aModel constantsASTs select: [ :anAST | anAST isInt ].
+	| constants trueAtoms falseAtoms ints |
+	constants := aModel constantsASTs.
+	trueAtoms := constants select: [ :anAST | anAST == Bool true ].
+	trueAtoms := trueAtoms keys select: [ :anAtom | self isGoodVarName: anAtom ].
+	falseAtoms := constants select: [ :anAST | anAST == Bool false ].
+	falseAtoms := falseAtoms keys select: [ :anAtom | self isGoodVarName: anAtom ].
+	ints := constants select: [ :anAST | anAST isInt ].
 	^self basicNew 
 		trueAtoms: trueAtoms;
+		falseAtoms: falseAtoms;
 		constraintAssignments: ints;
 		yourself
 ]
@@ -37,6 +42,16 @@ AnswerSet >> constraintAssignments [
 { #category : #accessing }
 AnswerSet >> constraintAssignments: anObject [
 	constraintAssignments := anObject
+]
+
+{ #category : #accessing }
+AnswerSet >> falseAtoms [
+	^ falseAtoms
+]
+
+{ #category : #accessing }
+AnswerSet >> falseAtoms: anObject [
+	falseAtoms := anObject
 ]
 
 { #category : #accessing }

@@ -24,7 +24,8 @@ EzSMT class >> getAllModelsFrom: solver [
 	solver check ifFalse: [^OrderedCollection new].
 	model := solver getModel.
 	answerSet := AnswerSet from: model.
-	negations := answerSet trueAtoms collect: [ :anAtom | (Bool var: anAtom) not ].
+	negations := (answerSet trueAtoms  collect: [ :anAtom | (Bool var: anAtom) not ]),
+	             (answerSet falseAtoms collect: [ :anAtom |  Bool var: anAtom      ]).
 	solver assert: (Bool or: negations).
 	^(self getAllModelsFrom: solver) add: answerSet; yourself
 ]

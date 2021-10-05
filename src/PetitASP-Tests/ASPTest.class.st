@@ -7,7 +7,7 @@ Class {
 { #category : #tests }
 ASPTest >> test2of4 [
 	| answers |
-	answers := EzSMT solveProgram: '2 { f(1..4) } 2.'.
+	answers := EzSMT new solveProgram: '2 { f(1..4) } 2.'.
 	self assert: answers size equals: 6.
 	self assert: (answers allSatisfy: [ :ans |
 		ans trueAtoms size = 2])
@@ -30,14 +30,14 @@ ASPTest >> testDisjunction [
 	The latter will produce 4 stable models including {a,b,c}.
 	"
 	| answers |
-	answers := EzSMT solveProgram: '1 { a; b } :- c. c :- not d. d :- not c.'.
+	answers := EzSMT new solveProgram: '1 { a; b } :- c. c :- not d. d :- not c.'.
 	self assert: answers size equals: 4	
 ]
 
 { #category : #tests }
 ASPTest >> testFoundedChain [
 	| answers |
-	answers := EzSMT solveProgram: 'a :- b. b :- c. c.'.
+	answers := EzSMT new solveProgram: 'a :- b. b :- c. c.'.
 	self assert: answers size equals: 1.
 	self deny: answers first trueAtoms isEmpty
 	
@@ -46,7 +46,7 @@ ASPTest >> testFoundedChain [
 { #category : #tests }
 ASPTest >> testNonTight [
 	| answers |
-	answers := EzSMT solveProgram: '
+	answers := EzSMT new solveProgram: '
 		a :- c, not b.
 		b :- d, not a.
 		c :- d, not b.
@@ -62,13 +62,13 @@ ASPTest >> testNonTight [
 
 { #category : #tests }
 ASPTest >> testSyntaxError [
-	self should: [EzSMT solveProgram: '(].'] raise: GringoSyntaxError 
+	self should: [EzSMT new solveProgram: '(].'] raise: GringoSyntaxError 
 ]
 
 { #category : #tests }
 ASPTest >> testTowerOfHanoi [
 	| answers solution moves moves3 firstMove |
-	answers := EzSMT solveProgram: self towerOfHanoi.
+	answers := EzSMT new solveProgram: self towerOfHanoi.
 	self assert: answers size equals: 1.
 	solution := answers first.
 	moves := solution trueAtoms select: [ :atm | atm beginsWith: 'move(' ].
@@ -84,7 +84,7 @@ ASPTest >> testTowerOfHanoi [
 { #category : #tests }
 ASPTest >> testUnfoundedChain [
 	| answers |
-	answers := EzSMT solveProgram: 'a :- b. b :- c.'.
+	answers := EzSMT new solveProgram: 'a :- b. b :- c.'.
 	self assert: answers size equals: 1.
 	self assert: answers first trueAtoms isEmpty 
 	

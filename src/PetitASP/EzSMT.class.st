@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #clausification }
-EzSMT class >> clausify: anAspProgramString [
+EzSMT >> clausify: anAspProgramString [
 	| ez cnf errorString |
 	ez := LibEzSMT uniqueInstance ezsmt_mk.
 	cnf := LibEzSMT uniqueInstance ezsmt_clausify: ez _: anAspProgramString.
@@ -19,7 +19,7 @@ EzSMT class >> clausify: anAspProgramString [
 ]
 
 { #category : #solving }
-EzSMT class >> getAllModelsFrom: solver [
+EzSMT >> getAllModelsFrom: solver [
 	| one answerSet negations |
 	one := self getOneModelFrom: solver.
 	one isEmpty ifTrue: [^one].
@@ -31,7 +31,7 @@ EzSMT class >> getAllModelsFrom: solver [
 ]
 
 { #category : #solving }
-EzSMT class >> getOneModelFrom: solver [
+EzSMT >> getOneModelFrom: solver [
 	| model answerSet |
 	solver check ifFalse: [^OrderedCollection new].
 	model := solver getModel.
@@ -40,7 +40,7 @@ EzSMT class >> getOneModelFrom: solver [
 ]
 
 { #category : #solving }
-EzSMT class >> solveProgram: anAspProgramString [ 
+EzSMT >> solveProgram: anAspProgramString [ 
 	| cnf dimacs |
 	cnf := self clausify: anAspProgramString.
 	dimacs := DIMACS parseText: cnf.
@@ -49,7 +49,7 @@ EzSMT class >> solveProgram: anAspProgramString [
 ]
 
 { #category : #solving }
-EzSMT class >> solveProgramOnce: anAspProgramString [ 
+EzSMT >> solveProgramOnce: anAspProgramString [ 
 	| cnf dimacs |
 	cnf := self clausify: anAspProgramString.
 	dimacs := DIMACS parseText: cnf.

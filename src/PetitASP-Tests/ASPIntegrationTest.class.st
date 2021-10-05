@@ -7,7 +7,7 @@ Class {
 { #category : #tests }
 ASPIntegrationTest >> testEX1 [
 	| answers e acd |
-	answers := EzSMT solveProgram: 'cspdomain(fd). cspvar(x).
+	answers := EzSMT new solveProgram: 'cspdomain(fd). cspvar(x).
 		a :- c, not b.
 		b :- d, not a.
 		c :- d, not b.
@@ -29,7 +29,7 @@ ASPIntegrationTest >> testEX1 [
 { #category : #tests }
 ASPIntegrationTest >> testRequired1 [
 	| answers |
-	answers := EzSMT solveProgram: 'cspdomain(fd). cspvar(x).
+	answers := EzSMT new solveProgram: 'cspdomain(fd). cspvar(x).
 		required(ezcsp__geq(x, 10)).'.
 	self assert: answers size equals: 1.
 	self assert: (answers first constraintAssignments at: 'x') >= 10

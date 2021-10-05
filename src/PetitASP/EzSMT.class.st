@@ -1,9 +1,6 @@
 Class {
 	#name : #EzSMT,
 	#superclass : #Object,
-	#instVars : [
-		'ptr'
-	],
 	#category : #PetitASP
 }
 

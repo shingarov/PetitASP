@@ -7,9 +7,10 @@ Class {
 		'bools',
 		'theory',
 		'atomDict',
-		'declaredFunctions'
+		'declaredFunctions',
+		'context'
 	],
-	#category : #PetitASP
+	#category : #'PetitASP-ASP'
 }
 
 { #category : #'as yet unclassified' }
@@ -20,18 +21,24 @@ DIMACS class >> boolFromLiteral [
 			ifFalse: [ Bool var: literal ]]
 ]
 
-{ #category : #'instance creation' }
-DIMACS class >> parseFile: path [ 
-	^self parseText: (FileReference / path) readStream contents
-]
-
 { #category : #'as yet unclassified' }
 DIMACS class >> parseText: aString [ 
 	| lines |
 	lines := aString lines.
 	^super new 
 		headerLine: lines first 
-		lines: lines allButFirst 
+		lines: lines allButFirst
+		context: Dictionary new
+]
+
+{ #category : #'as yet unclassified' }
+DIMACS class >> parseText: aString in: ctx [
+	| lines |
+	lines := aString lines.
+	^super new 
+		headerLine: lines first 
+		lines: lines allButFirst
+		context: ctx
 ]
 
 { #category : #'as yet unclassified' }
@@ -54,6 +61,12 @@ DIMACS >> assertCNF: aLine [
 ]
 
 { #category : #'as yet unclassified' }
+DIMACS >> context [
+	context isNil ifTrue: [ context := Dictionary new ].
+	^ context
+]
+
+{ #category : #'as yet unclassified' }
 DIMACS >> declareBool: anAtom [
 	declaredFunctions at: anAtom put: (Bool var: anAtom)
 ]
@@ -67,9 +80,10 @@ DIMACS >> declareBools [
 { #category : #'as yet unclassified' }
 DIMACS >> declareCspExpression: aBool [
 	| tree |
+	(aBool beginsWith: 'ezcsp_required(') ifFalse: [ ^self ].
 	tree := CspRequiredParser parse: aBool.
-	tree isPetitFailure ifTrue: [ ^self ].
-	self solver assert: (Bool var: aBool) ==> tree toBool
+	tree isPetitFailure ifTrue: [ self error ].
+	self solver assert: (Bool var: aBool) ==> (tree substCosas: self context)
 ]
 
 { #category : #'as yet unclassified' }
@@ -137,6 +151,18 @@ DIMACS >> gatherDimacsBools [
 
 { #category : #'as yet unclassified' }
 DIMACS >> headerLine: hd lines: ll [
+	lines := ll collect: [ :l | l substrings allButLast ].
+	self gatherDimacsBools.
+	self declareBools.
+	self assertCNF.
+	self maintainAtoms.
+	self declareCspVars.
+	self declareCspExpressions
+]
+
+{ #category : #'as yet unclassified' }
+DIMACS >> headerLine: hd lines: ll context: ctx [
+	context := ctx.
 	lines := ll collect: [ :l | l substrings allButLast ].
 	self gatherDimacsBools.
 	self declareBools.

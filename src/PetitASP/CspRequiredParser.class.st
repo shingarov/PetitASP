@@ -3,22 +3,25 @@ Class {
 	#superclass : #PPCompositeParser,
 	#instVars : [
 		'term',
-		'application',
 		'leaf',
 		'args',
 		'id',
-		'number'
+		'number',
+		'application',
+		'escapedFunctor',
+		'codepoint'
 	],
-	#category : #PetitASP
+	#category : #'PetitASP-ASP'
 }
 
 { #category : #accessing }
-CspRequiredParser >> application [
-	^ (#word asParser, (#word asParser / $_ asParser) star) flatten,
-		$( asParser,
-		args,
-		$) asParser
-	==> [ :x | EzCspExpression functor: x first args: x third ]
+CspRequiredParser >> application [ 
+	^'ezcsp_appl(' asParser,
+	escapedFunctor,
+	(($, asParser,
+	term) star ==> [ :x | x collect: #second ]),
+	$) asParser
+	==> [ :x | ApplicationTerm functor: x second args: x third ]
 ]
 
 { #category : #accessing }
@@ -28,8 +31,23 @@ CspRequiredParser >> args [
 ]
 
 { #category : #accessing }
+CspRequiredParser >> codepoint [
+	^(#hex asParser,
+	#hex asParser,
+	#hex asParser,
+	#hex asParser) flatten
+	==> [ :x | Character value: (Integer readFrom: x base: 16) ]
+]
+
+{ #category : #accessing }
+CspRequiredParser >> escapedFunctor [
+	^'ezcsp_escape_' asParser, codepoint plus
+	==> [ :x | Symbol withAll: x second ]
+]
+
+{ #category : #accessing }
 CspRequiredParser >> id [
-	^(#letter asParser, #word asParser star) flatten
+	^(#letter asParser, (#word asParser / $_ asParser) star) flatten ==> [ :x | Cosa named: x ]
 ]
 
 { #category : #accessing }
@@ -49,7 +67,7 @@ CspRequiredParser >> number [
 
 { #category : #accessing }
 CspRequiredParser >> start [ 
-	^ 'required(' asParser, application, ')' asParser
+	^ 'ezcsp_required(' asParser, term, ')' asParser
 	==> [ :x | x second ]
 ]
 

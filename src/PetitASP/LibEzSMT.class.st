@@ -1,7 +1,7 @@
 Class {
 	#name : #LibEzSMT,
 	#superclass : #FFILibrary,
-	#category : #PetitASP
+	#category : #'PetitASP-ASP'
 }
 
 { #category : #API }

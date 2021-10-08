@@ -6,7 +6,7 @@ Class {
 		'falseAtoms',
 		'constraintAssignments'
 	],
-	#category : #PetitASP
+	#category : #'PetitASP-ASP'
 }
 
 { #category : #'instance creation' }
@@ -30,7 +30,7 @@ AnswerSet class >> isGoodVarName: aString [
 	[Integer readFrom: aString. ^false] on: Error do: [ self ].
 	(aString beginsWith: 'cspvar') ifTrue: [ ^false ].
 	(aString beginsWith: 'cspdomain') ifTrue: [ ^false ].
-	(aString beginsWith: 'required') ifTrue: [ ^false ].
+	(aString beginsWith: 'ezcsp_required') ifTrue: [ ^false ].
 	^true
 ]
 
@@ -52,6 +52,24 @@ AnswerSet >> falseAtoms [
 { #category : #accessing }
 AnswerSet >> falseAtoms: anObject [
 	falseAtoms := anObject
+]
+
+{ #category : #GT }
+AnswerSet >> gtInspectorExtendedIn: composite [
+	<gtInspectorPresentationOrder: 3>
+	^ composite fastTable
+		title: 'Extended';
+		display: [ self constraintAssignments associations ];
+			column: 'Key' evaluated: [ :each | each key ];
+			column: 'Value' evaluated: [ :each | each value ]
+]
+
+{ #category : #GT }
+AnswerSet >> gtInspectorTrueIn: composite [
+	<gtInspectorPresentationOrder: 1>
+	^ composite fastList
+		title: 'True atoms';
+		display: [ self trueAtoms ]
 ]
 
 { #category : #accessing }

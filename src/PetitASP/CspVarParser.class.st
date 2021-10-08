@@ -5,7 +5,7 @@ Class {
 		'v',
 		'bounds'
 	],
-	#category : #PetitASP
+	#category : #'PetitASP-ASP'
 }
 
 { #category : #accessing }

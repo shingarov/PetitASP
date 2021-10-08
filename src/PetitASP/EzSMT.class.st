@@ -1,7 +1,7 @@
 Class {
 	#name : #EzSMT,
 	#superclass : #Object,
-	#category : #PetitASP
+	#category : #'PetitASP-ASP'
 }
 
 { #category : #clausification }
@@ -36,20 +36,40 @@ EzSMT >> getOneModelFrom: solver [
 	^OrderedCollection with: answerSet
 ]
 
+{ #category : #clausification }
+EzSMT >> preparse: source [
+	| leftBracket rightBracket numDigits stream text expr |
+	leftBracket := source indexOf: $«.
+	leftBracket = 0 ifTrue: [ ^source ].
+	rightBracket := source indexOf: $».
+	text := source copyFrom: leftBracket+1 to: rightBracket-1.
+	expr := TartagliaContext evaluate: text.
+	^(source copyFrom: 1 to: leftBracket-1),
+		'ezcsp_required(',
+		(expr printEzCsp),
+		')',
+		(self preparse: (source copyFrom: rightBracket+1 to: source size))
+]
+
 { #category : #solving }
 EzSMT >> solveProgram: anAspProgramString [ 
+	^ self solveProgram: anAspProgramString in: thisContext sender
+]
+
+{ #category : #solving }
+EzSMT >> solveProgram: anAspProgramString in: aContext [
 	| cnf dimacs |
-	cnf := self clausify: anAspProgramString.
-	dimacs := DIMACS parseText: cnf.
+	cnf := self clausify: (self preparse: anAspProgramString).
+	dimacs := DIMACS parseText: cnf in: aContext.
 	^ self getAllModelsFrom: dimacs solver.
 
 ]
 
 { #category : #solving }
-EzSMT >> solveProgramOnce: anAspProgramString [ 
+EzSMT >> solveProgramOnce: anAspProgramString in: aContext [
 	| cnf dimacs |
-	cnf := self clausify: anAspProgramString.
-	dimacs := DIMACS parseText: cnf.
-	^ self getOneModelFrom: dimacs solver
+	cnf := self clausify: (self preparse: anAspProgramString).
+	dimacs := DIMACS parseText: cnf in: aContext.
+	^ self getOneModelFrom: dimacs solver.
 
 ]

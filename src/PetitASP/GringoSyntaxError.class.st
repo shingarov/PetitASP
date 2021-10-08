@@ -8,7 +8,7 @@ Class {
 		'severity',
 		'errorMessage'
 	],
-	#category : #PetitASP
+	#category : #'PetitASP-ASP'
 }
 
 { #category : #exceptioninstantiator }

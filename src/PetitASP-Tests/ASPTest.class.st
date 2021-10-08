@@ -1,7 +1,7 @@
 Class {
 	#name : #ASPTest,
 	#superclass : #TestCaseWithZ3Context,
-	#category : #'PetitASP-Tests'
+	#category : #'PetitASP-Tests-ASP'
 }
 
 { #category : #tests }
@@ -44,8 +44,27 @@ ASPTest >> testFoundedChain [
 ]
 
 { #category : #tests }
+ASPTest >> testGrounding [
+	| answers ans good |
+	answers := EzSMT new solveProgram: '
+		num(one, 1).
+		num(two, 2).
+		num(three, 3).
+		num(four, 4).
+		num(five, 5).
+		even(2).
+		even(4).
+		good(Word) :- num(Word, N), even(N).
+'.
+	self assert: answers size equals: 1.
+	ans := answers first.
+	good := ans trueAtoms select: [ :a | a beginsWith: 'good(' ].
+	self assert: good asSet equals: #('good(two)' 'good(four)') asSet
+]
+
+{ #category : #tests }
 ASPTest >> testNonTight [
-	| answers |
+	| answers e acd |
 	answers := EzSMT new solveProgram: '
 		a :- c, not b.
 		b :- d, not a.
@@ -57,7 +76,10 @@ ASPTest >> testNonTight [
 		e :- not a, not b.
 '.
 	self assert: answers size equals: 2.
-	self assert: ((answers detect: [ :ans | ans trueAtoms size = 1 ]) trueAtoms) equals: #('e').
+	e := answers detect: [ :ans | ans trueAtoms size = 1 ].
+	self assert: e trueAtoms equals: #('e').
+	acd := answers detect: [ :ans | ans ~~ e ].
+	self assert: acd trueAtoms asSet equals: #('a' 'c' 'd') asSet
 ]
 
 { #category : #tests }

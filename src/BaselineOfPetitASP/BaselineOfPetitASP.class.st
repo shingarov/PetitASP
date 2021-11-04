@@ -24,7 +24,7 @@ BaselineOfPetitASP >> baseline: spec [
 			].
 			
 			spec baseline: 'MachineArithmetic' with: [
-				spec repository: 'github://shingarov/MachineArithmetic:pure-z3'
+				spec repository: 'github://shingarov/MachineArithmetic:fixpoint'
 			].
 
 			spec

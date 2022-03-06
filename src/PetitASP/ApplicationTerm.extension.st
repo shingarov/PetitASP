@@ -1,12 +1,4 @@
-Class {
-	#name : #ApplicationTerm,
-	#superclass : #TartagliaTerm,
-	#instVars : [
-		'message',
-		'receiver'
-	],
-	#category : #'PetitASP-CardanoTartaglia'
-}
+Extension { #name : #ApplicationTerm }
 
 { #category : #'*PetitASP' }
 ApplicationTerm >> printEzCsp [
